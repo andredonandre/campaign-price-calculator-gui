@@ -1,0 +1,185 @@
+﻿@page "/"
+@using CPC.Models;
+
+<PageTitle>Counter</PageTitle>
+
+<div>
+    <div class="row pb-4 pt-3">
+        <div class="col-md-4">
+            <div>
+                <h3>
+                    Products
+                </h3>
+            </div>
+            <div>
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col">EAN</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        @foreach (var product in Products)
+                        {
+                            <tr>
+                                <td>@product</td>
+                                <td>
+                                    <button class="btn btn-primary" @onclick="() => AddProductToCart(product)">Add to Cart</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+          
+        </div>
+        <div class="col-md-8">
+            <div>
+                <h3>
+                    My cart <span class="badge bg-info">@myCart.cartItems.Count()</span>
+                </h3>
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">EAN</th>
+                                <th scope="col">Price</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            @if (!myCart.cartItems.Any())
+                            {
+                                <tr>
+                                    <td colspan="3">
+                                        <div class="card bg-none boreder-dark text-dark text-center px-3 py-5 m-1">
+                                            <blockquote class="blockquote mb-0">
+                                                <p>Cart is empty</p>
+                                                <footer class="blockquote-footer">
+                                                    <small>
+                                                        Add products to your cart.
+                                                        Watch the campaign prices with each item added
+                                                    </small>
+                                                </footer>
+                                            </blockquote>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }                           
+                            @foreach (var cartitem in myCart.cartItems)
+                            {
+                                <tr>
+                                    <td class="fw-bolder">@cartitem.EAN</td>
+                                    <td>@cartitem.Price SEK</td>
+                                    <td><button class="btn btn-sm btn-dark" @onclick="()=> RemoveProductFromCart(cartitem)">-</button></td>
+                                </tr>
+                            }                          
+                        </tbody>
+                        <tfoot class="border-top-3">
+                            <tr class="border-top-2 border-dark bg-info ">
+                                <td>Total (Ordinary price)</td>
+                                <td>@myCart.CalculatePrice() SEK</td>
+                                <td></td>
+                            </tr>
+                            <tr class="border-top-2 border-dark bg-light">
+                                <td class="text-uppercase">Volume Campaign Price</td>
+                                <td class="fw-bolder">@VolumePrice SEK</td>
+                                <td></td>
+                            </tr>
+                            <tr class="border-top-2 border-dark  bg-light">
+                                <td class="text-uppercase">Combo campaign Price</td>
+                                <td class="fw-bolder">@ComboPrice SEK</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div>
+                    <h4 class="mb-3">
+                        Active Campaigns
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-dark mb-2">
+                                <div class="card-header">
+                                    Volume Campaign - <span class="text-secondary">@volumeCampaign.name</span>
+                                </div>
+                                <div class="card-body pb-3">
+                                    <h5 class="card-title">@volumeCampaign.Price SEK for @volumeCampaign.minimumQuantity items</h5>
+                                    <p class="card-text"> applies to [<span>@volumeCampaign.campaignProduct.EAN</span>]                                    
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-dark mb-2">
+                                <div class="card-header">
+                                    Combo Campaign  - <span class="text-secondary">@comboCampaign.name</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">@comboCampaign.Price SEK for 2 items</h5>
+                                    <p class="card-text">
+                                        applies to [
+                                        @foreach (var i in comboCampaign.campaignItems)
+                                        {
+                                            <span>@i.EAN ,</span>
+                                        }]
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>       
+    </div>
+
+</div>
+
+@code {
+    private Cart myCart;
+    private string[] Products = { "7310865004703", "7310532109090", "5000112637922", "5000112637939", "978020137962", "7611612222105", "7340005404261", "978020137962" };
+    private VolumeCampaign volumeCampaign;
+    private ComboCampaign comboCampaign;
+    private int VolumePrice = 0;
+    private int ComboPrice = 0;
+    private int currentCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SeedData();
+    }
+
+    //Calculate Cart price for each campaign
+
+    private void CalculateCampaignPrices()
+    {
+        VolumePrice = volumeCampaign.CalculatePrice(myCart);
+        ComboPrice = comboCampaign.CalculatePrice(myCart);
+    }
+
+    private void AddProductToCart(string EAN)
+    {
+        myCart.cartItems.Add(new CartItem { EAN = EAN });
+        CalculateCampaignPrices();
+    }
+
+    private void RemoveProductFromCart(CartItem item)
+    {
+        myCart.cartItems.Remove(item);
+        CalculateCampaignPrices();
+    }
+
+    public void SeedData()
+    {
+        //Instantiate cart
+        myCart = new Cart();
+        //Create Volume campaign
+        volumeCampaign = new VolumeCampaign() { campaignProduct = new Product { EAN = "7310865004703" }, minimumQuantity = 2, name = "2 for 20 deal", Price = 20 };
+        //Create combo campaign
+        string[] comboItems = { "5000112637922", "5000112637939", "7310865004703", "7340005404261", "7310532109090", "7611612222105" };
+        comboCampaign = new ComboCampaign() { Price = 30,name="Mega combo deal", campaignItems = comboItems.Select(c => new Product { EAN = c }).ToList() };
+    }
+}

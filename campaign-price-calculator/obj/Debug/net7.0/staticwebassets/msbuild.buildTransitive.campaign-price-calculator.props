@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\buildMultiTargeting\campaign-price-calculator.props" />
+</Project>

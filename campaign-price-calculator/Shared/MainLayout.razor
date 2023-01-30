@@ -1,0 +1,28 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+   @* <div class="sidebar">
+        <NavMenu />
+    </div>*@
+    
+    <div class="container">
+        <header>
+            <div class="d-flex flex-column flex-md-row align-items-center pb-3 mb-2 border-bottom">
+                <a href="/" class="d-flex align-items-center text-dark text-decoration-none"> 
+                    <span class="fs-4"><span class="text-primary text-uppercase fw-bold">Storekey</span> Task </span>
+                </a>
+
+                <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+                    <a class="me-3 py-2 text-dark small" target="_blank" href="https://www.linkedin.com/in/andrew-owen-sembatya/">by Andrew Owen Sembatya</a>
+                </nav>
+            </div>
+            <h2>Campaign Price Calculator</h2>
+            <div class="alert alert-primary mb-0" role="alert">
+                <span class="fw-bold">Note:</span> - All products cost 100 SEK 
+            </div>
+        </header>
+        <div class="content pt-0">
+            @Body
+        </div>
+    </div>
+</div>
