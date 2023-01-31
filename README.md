@@ -15,5 +15,5 @@ NOTE: The campaigns are instantiated based on examples provided in the doc.
 - Multiple campaign prices cannot be calculated recursively
 
 #Possible improvements
-- Duplication in the cart can be resolved the CartItem storing a quantity in cart. This can be updated when items are added or removed
+- Duplication in the cart can be resolved by the CartItem storing a quantity in cart. This can be updated when items are added or removed
 - Iterative application of campaigns can be run simultaneously
