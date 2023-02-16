@@ -45,9 +45,13 @@ namespace CPC.Models
         //Price calculation for Volume Campaign
         public override int CalculatePrice(Cart cart)
         {
+            //Items in cart which campaign can be applied to
             var units = cart.cartItems.Where(p => p.EAN == campaignProduct.EAN).ToList();
+            //Other Items in the cart that campaign does not apply to
             var otherunits = cart.cartItems.Where(p => p.EAN != campaignProduct.EAN).ToList();
+            //Total Price of Items where campaign is not applicable
             var otherprice = otherunits.Sum(o => o.Price);
+            //Campaign units where campaign won't be applied
             var rem = units.Count % minimumQuantity;
             return ((units.Count / minimumQuantity) * Price) + (rem * campaignProduct.Price) + otherprice;
         }
@@ -59,10 +63,15 @@ namespace CPC.Models
         //Price calculation for Combo Campaign
         public override int CalculatePrice(Cart cart)
         {
+            //Items in cart which campaign can be applied to
             var campaignUnits = cart.cartItems.Where(u => campaignItems.Any(i => i.EAN == u.EAN)).ToList();
+            //Other Items in the cart that campaign does not apply to
             var otherunits = cart.cartItems.Where(c => !campaignItems.Any(x => x.EAN == c.EAN)).ToList();
+            //Total Price of Items where campaign is not applicable
             var otherprice = otherunits.Sum(o => o.Price);
+            //Campaign units where campaign won't be applied
             var rem = campaignUnits.Count % 2;
+            //Price for campaign units where campaign wont be applied
             var remprice = campaignUnits.Any() ? campaignUnits.Last().Price : 0;
             return ((campaignUnits.Count / 2) * Price) + (rem * remprice) + otherprice;
         }
